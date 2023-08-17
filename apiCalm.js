@@ -10,33 +10,47 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.post("/send-email", (req, res) => {
-  console.log("req,body", req.body);
-  const { fname, email, presentacion, phone, lname, file } = req.body;
-
-  // Configura el transportador de nodemailer con SendGrid
   const options = {
     auth: {
       api_key:
         "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", // Reemplaza con tu clave de API de SendGrid
     },
   };
-  const base64Data = file.replace(/^data:application\/pdf;base64,/, "");
+  console.log("req,body", req.body);
+  const { fname, email, presentacion, phone, lname, file } = req.body;
+
+  if (file) {
+    console.log("hay file");
+    const base64Data = file.replace(/^data:application\/pdf;base64,/, "");
+    const pdfBuffer = Buffer.from(base64Data, "base64");
+    const mailOptions = {
+      from: "contact@missingpets.art",
+      to: "contactldelgado@gmail.com",
+      subject: `Postulacion de ${fname} ${lname}`,
+      text: `Nombre: ${fname}\nCorreo electrónico: ${email}\nMensaje: ${presentacion}\nTelefono:${phone}`,
+      attachments: [
+        {
+          filename: "archivo.pdf", // Nombre del archivo adjunto que se mostrará en el correo
+          content: pdfBuffer, // Contenido del archivo PDF
+        },
+      ],
+    };
+  }
+
+  if (!file) {
+    console.log("no hay archivo");
+    const mailOptions = {
+      from: "contact@missingpets.art",
+      to: "contactldelgado@gmail.com",
+      subject: `Postulacion de ${fname} ${lname}`,
+      text: `Nombre: ${fname}\nCorreo electrónico: ${email}\nMensaje: ${presentacion}\nTelefono:${phone}`,
+    };
+  }
+
+  // Configura el transportador de nodemailer con SendGrid
+
   const transporter = nodemailer.createTransport(sgTransport(options));
-  const pdfBuffer = Buffer.from(base64Data, "base64");
-  console.log("pdfbuffer", pdfBuffer);
   // Configura el contenido del correo electrónico
-  const mailOptions = {
-    from: "contact@missingpets.art",
-    to: "contactldelgado@gmail.com",
-    subject: `Postulacion de ${fname} ${lname}`,
-    text: `Nombre: ${fname}\nCorreo electrónico: ${email}\nMensaje: ${presentacion}\nTelefono:${phone}`,
-    attachments: [
-      {
-        filename: "archivo.pdf", // Nombre del archivo adjunto que se mostrará en el correo
-        content: pdfBuffer, // Contenido del archivo PDF
-      },
-    ],
-  };
 
   // Enviar el correo electrónico
   transporter.sendMail(mailOptions, (error, info) => {
