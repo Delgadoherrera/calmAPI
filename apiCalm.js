@@ -45,23 +45,22 @@ app.post("/send-email", (req, res) => {
       subject: `Postulacion de ${fname} ${lname}`,
       text: `Nombre: ${fname}\nCorreo electrónico: ${email}\nMensaje: ${presentacion}\nTelefono:${phone}`,
     };
+    const transporter = nodemailer.createTransport(sgTransport(options));
+    // Configura el contenido del correo electrónico
+
+    // Enviar el correo electrónico
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+        res.status(500).send("Error al enviar el correo electrónico");
+      } else {
+        console.log("Correo electrónico enviado: " + info.response);
+        res.status(200).send("Correo electrónico enviado con éxito");
+      }
+    });
   }
 
   // Configura el transportador de nodemailer con SendGrid
-
-  const transporter = nodemailer.createTransport(sgTransport(options));
-  // Configura el contenido del correo electrónico
-
-  // Enviar el correo electrónico
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(error);
-      res.status(500).send("Error al enviar el correo electrónico");
-    } else {
-      console.log("Correo electrónico enviado: " + info.response);
-      res.status(200).send("Correo electrónico enviado con éxito");
-    }
-  });
 });
 
 const PORT = process.env.PORT || 3001;
