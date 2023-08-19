@@ -40,14 +40,13 @@ app.post("/send-email", (req, res) => {
   if (!file) {
     console.log("no hay archivo");
     const mailOptions = {
-      from: "contact@missingpets.art",
+      from: "contact@calmhc.com",
       to: "contactldelgado@gmail.com",
       subject: `Postulacion de ${fname} ${lname}`,
       text: `Nombre: ${fname}\nCorreo electrónico: ${email}\nMensaje: ${presentacion}\nTelefono:${phone}`,
     };
     const transporter = nodemailer.createTransport(sgTransport(options));
     // Configura el contenido del correo electrónico
-
     // Enviar el correo electrónico
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
